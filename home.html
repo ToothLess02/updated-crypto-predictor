@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Prediction System</title>
+    <link rel="stylesheet" href="home-styles.css">
+    <script src="home.js"></script>
+    <!-- Chart.js dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@2.0.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.0.0">    
+    </script>
+</head>
+<style>/* File: home-styles.css - Best Interactive & Beautiful Design */
+
+    /* Reset and base theme */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+        background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+        color: #f0f0f0;
+        padding: 2rem;
+        line-height: 1.6;
+        scroll-behavior: smooth;
+    }
+    
+    h1, h2, h3, h4 {
+        font-weight: 600;
+        color: #f9f9f9;
+    }
+    
+    .container, .crypto-container {
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(10px);
+    }
+    
+    .heading h1 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 2.5rem;
+        background: linear-gradient(45deg, #00dbde, #fc00ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: fadeIn 1s ease-in-out;
+    }
+    
+    /* Navigation */
+    .navigation ul {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        list-style: none;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .navigation a {
+        text-decoration: none;
+        color: #ffffffcc;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .navigation a:hover {
+        background-color: #ffffff11;
+        color: #00dbde;
+        transform: scale(1.05);
+    }
+    
+    .crypto-header, .crypto-title, .crypto-price {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .crypto-title img {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .crypto-price h2 {
+        font-size: 2rem;
+        color: #00e676;
+    }
+    
+    .price-change.positive {
+        color: #00e676;
+    }
+    
+    .price-change.negative {
+        color: #ff5252;
+    }
+    
+    .crypto-tabs {
+        display: flex;
+        gap: 1rem;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        background-color: #1c1c1c;
+        color: #ccc;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    .tab-btn.active, .tab-btn:hover {
+        background-color: #00dbde;
+        color: #000;
+        font-weight: bold;
+    }
+    
+    .chart-container canvas {
+        width: 100% !important;
+        height: 400px !important;
+    }
+    
+    .time-filters button {
+        background-color: #282c34;
+        color: #bbb;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        margin: 0.3rem;
+        transition: all 0.2s ease;
+    }
+    
+    .time-filters button:hover, .time-filters button.active {
+        background-color: #00dbde;
+        color: #000;
+    }
+    
+    .crypto-stats, .coins-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .stats-card, .coin-card {
+        background-color: #1c1c1c;
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    
+    .coin-card:hover, .stats-card:hover {
+        transform: translateY(-4px);
+        background-color: #2c2c2c;
+    }
+    
+    .coin-card img {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .box {
+        display: inline-block;
+        margin: 1rem;
+        padding: 1rem 2rem;
+        background: #00dbde;
+        color: #000;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .box:hover {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #00dbde, #fc00ff);
+        color: white;
+    }
+    
+    /* Info Cards */
+    .info-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 3rem;
+    }
+    
+    .card {
+        perspective: 1000px;
+    }
+    
+    .card-inner {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+    }
+    
+    .card:hover .card-inner {
+        transform: rotateY(180deg);
+    }
+    
+    .card-front, .card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        background: #1e1e1e;
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .card-front {
+        color: #00dbde;
+        font-weight: bold;
+    }
+    
+    .card-back {
+        transform: rotateY(180deg);
+        font-size: 0.9rem;
+        color: #f0f0f0;
+    }
+    
+    /* About Us Section */
+    .About-us {
+        margin-top: 3rem;
+        text-align: center;
+    }
+    
+    .head-no1 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        color: #fc00ff;
+    }
+    
+    .Details {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    
+    .info-card {
+        width: 90%;
+        background: #1f1f1f;
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: #ccc;
+        transition: transform 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: scale(1.02);
+        background: #2a2a2a;
+    }
+    
+    .info-front {
+        font-weight: bold;
+        color: #00dbde;
+        font-size: 1.2rem;
+    }
+    
+    .info-under {
+        margin-top: 1rem;
+        text-align: left;
+        line-height: 1.5;
+        color: #f1f1f1;
+        font-size: 0.95rem;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Responsive Tweaks */
+    @media (max-width: 768px) {
+        .crypto-header, .crypto-title, .crypto-price {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    
+        .tab-btn, .time-filters button {
+            flex: 1 1 auto;
+        }
+    
+        .container, .crypto-container {
+            padding: 1rem;
+        }
+    }
+    </style>
+<body>
+    <!-- Your original heading and navigation -->
+    <div class="heading">
+        <h1>Hello this is a crypto prediction system</h1>
+    </div>
+
+    <div class="navigation">
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="products">products</a></li>
+            <li><a href="services">services</a></li>
+            <li class="auth-links">
+                <a href="login">Log in</a>
+                <span>/</span>
+                <a href="signup">Sign up</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Integrated crypto price chart section -->
+    <div class="crypto-container">
+        <div class="crypto-header">
+            <div class="crypto-title">
+                <div class="crypto-icon">
+                    <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1.png" alt="Bitcoin">
+                </div>
+                <h1>Bitcoin <span>BTC</span></h1>
+                <div class="rank">Rank #1</div>
+            </div>
+            <div class="crypto-price">
+                <h2>$<span id="btc-price">68,420.35</span> <span class="price-change positive">+2.34%</span></h2>
+                <p>₹56,78,901.23</p>
+            </div>
+        </div>
+
+        <div class="crypto-tabs">
+            <button class="tab-btn active" data-tab="overview">Overview</button>
+            <button class="tab-btn" data-tab="charts">Charts</button>
+            <button class="tab-btn" data-tab="historical">Historical Data</button>
+            <button class="tab-btn" data-tab="markets">Markets</button>
+            <button class="tab-btn" data-tab="news">News</button>
+        </div>
+
+        <div class="crypto-content">
+            <div class="tab-content active" id="overview">
+                <div class="price-chart-container">
+                    <div class="chart-header">
+                        <h3>Bitcoin Price Chart (USD)</h3>
+                        <div class="time-filters">
+                            <button class="time-btn active" data-time="24h">24H</button>
+                            <button class="time-btn" data-time="7d">7D</button>
+                            <button class="time-btn" data-time="30d">1M</button>
+                            <button class="time-btn" data-time="90d">3M</button>
+                            <button class="time-btn" data-time="1y">1Y</button>
+                            <button class="time-btn" data-time="all">ALL</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="crypto-stats">
+                    <div class="stats-card">
+                        <h4>Bitcoin Price</h4>
+                        <p id="stat-price">$0.00</p>
+                    </div>
+                    <div class="stats-card">
+                        <h4>24h Low / 24h High</h4>
+                        <p id="stat-24h">$0 / $0</p>
+                    </div>
+                    <div class="stats-card">
+                        <h4>7d Low / 7d High</h4>
+                        <p id="stat-7d">$0 / $0</p>
+                    </div>
+                    <div class="stats-card">
+                        <h4>Market Cap</h4>
+                        <p id="stat-marketcap">$0 <span class="positive">0%</span></p>
+                    </div>
+                    <div class="stats-card">
+                        <h4>Volume (24h)</h4>
+                        <p id="stat-volume">$0 <span class="positive">0%</span></p>
+                    </div>
+                    <div class="stats-card">
+                        <h4>Circulating Supply</h4>
+                        <p id="stat-supply">0 BTC</p>
+                    </div>
+                </div>
+
+                <div class="other-coins">
+                    <h3>Other Popular Coins</h3>
+                    <div class="coins-grid">
+                        <div class="coin-card" data-coin="ethereum">
+                            <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png" alt="Ethereum">
+                            <div class="coin-info">
+                                <h4>Ethereum <span>ETH</span></h4>
+                                <p>$3,456.78 <span class="positive">+1.23%</span></p>
+                            </div>
+                        </div>
+                        <div class="coin-card" data-coin="solana">
+                            <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png" alt="Solana">
+                            <div class="coin-info">
+                                <h4>Solana <span>SOL</span></h4>
+                                <p>$145.67 <span class="negative">-0.56%</span></p>
+                            </div>
+                        </div>
+                        <div class="coin-card" data-coin="bnb">
+                            <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png" alt="BNB">
+                            <div class="coin-info">
+                                <h4>BNB <span>BNB</span></h4>
+                                <p>$567.89 <span class="positive">+0.78%</span></p>
+                            </div>
+                        </div>
+                        <div class="coin-card" data-coin="xrp">
+                            <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/52.png" alt="XRP">
+                            <div class="coin-info">
+                                <h4>XRP <span>XRP</span></h4>
+                                <p>$0.5678 <span class="positive">+3.45%</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Your original container with boxes -->
+    <div class="container">
+        <a href="predictions.html" target="_blank" class="box box0">Predictions</a>
+        <a href="dailynews.html" target="_blank" class="box box1">Daily News</a>
+    </div>
+
+    <!-- Your original info cards -->
+    <div class="info-cards">
+        <div class="card">
+            <div class="card-inner">
+                <div class="card-front">What is stock prediction?</div>
+                <div class="card-back">
+                    Stock prediction is forecasting future stock prices using technical, fundamental, and AI models.  
+                    - Technical Analysis: Charts & indicators (RSI, Moving Averages).  
+                    - Fundamental Analysis: Evaluates financials & market position.  
+                    - AI & Machine Learning: Identifies patterns & predicts movements.  
+                    Predictions are useful but not guaranteed due to market volatility. 🚀📈
+                </div>
+            </div>
+        </div>
+    
+        <div class="card">
+            <div class="card-inner">
+                <div class="card-front">What are crypto insights?</div>
+                <div class="card-back">
+                    - Market Trends: Institutional adoption, Layer 2 solutions, BTC halving.  
+                    - Tech: DeFi, NFTs, AI & Blockchain.  
+                    - Risks: Regulation, volatility, security concerns.  
+                    Crypto adoption is growing, but risk management is key. 🌍🔥
+                </div>
+            </div>
+        </div>
+    
+        <div class="card">
+            <div class="card-inner">
+                <div class="card-front">What is sentiment analysis?</div>
+                <div class="card-back">
+                    Sentiment analysis uses AI & NLP to gauge public emotions in crypto markets.  
+                    - Social Media: Monitors tweets, discussions.  
+                    - News Sentiment: Analyzes market confidence.  
+                    - Whale Movements: Tracks large transactions.  
+                    Positive sentiment boosts prices, negative triggers sell-offs. 🚀📊
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Your original About Us section -->
+    <div class="About-us">
+        <h1 class="head-no1">Market Intelligence Dashboard</h1>
+        <div class="Details">
+            <div class="info-card active">
+                <div class="info-inner">
+                    <div class="info-front">
+                        <div class="info-above">What makes us different?</div>
+                    </div>
+                    <div class="info-back">
+                        <div class="info-under">
+                            <p><strong>1️⃣ AI-Powered Market Predictions:</strong><br>
+                            Our advanced AI & Machine Learning models analyze trends, historical data, and real-time market signals to provide accurate crypto & stock predictions.</p>
+                            <p><strong>2️⃣ Real-Time Sentiment Analysis:</strong><br>
+                            We track social media, news articles, and whale movements to gauge public sentiment, helping users make smarter decisions.</p>
+                            <p><strong>3️⃣ Cutting-Edge Insights & Research:</strong><br>
+                            Get in-depth market analysis, trends, and expert insights on crypto, stocks, and Web3 innovations—all in one place.</p>
+                            <p><strong>4️⃣ User-Centric & Intuitive Interface:</strong><br>
+                            Our platform is designed for both beginners & experts, offering a seamless experience with easy navigation and real-time updates.</p>
+                            <p><strong>5️⃣ Secure & Data-Driven Decision Making:</strong><br>
+                            We combine on-chain analytics, AI-powered risk assessments, and data visualization tools to maximize accuracy and minimize risk.</p>
+                            <p><strong>6️⃣ Community-Driven Approach:</strong><br>
+                            Join a growing community of investors, traders, and blockchain enthusiasts—discuss strategies, share insights, and stay ahead in the game.</p>
+                            <p><strong>7️⃣ Personalized Alerts & Automated Trading:</strong><br>
+                            Set custom alerts for price movements, sentiment changes, and market signals. Coming soon: AI-driven automated trading strategies.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-inner">
+                    <div class="info-front">
+                        <div class="info-above">What's happening in the market?</div>
+                    </div>
+                    <div class="info-back">
+                        <div class="info-under">
+                            <h3>📢 Market News & Insights – Stay Ahead of the Trends!</h3>
+                            <p>The crypto and stock markets are constantly evolving, influenced by global events, regulations, and technological advancements. Here's what's shaping the market right now:</p>
+                            
+                            <h3>📉 Stock Market Updates & Trends</h3>
+                            
+                            <p><strong>🔹 📊 Tech Stocks on the Rise</strong><br>
+                            - AI-driven companies like Nvidia, Microsoft, and Google are seeing strong growth due to the increasing adoption of AI technologies.<br>
+                            - Chip manufacturers are in high demand as AI development requires high-performance computing power.</p>
+                            
+                            <p><strong>🔹 🏦 Federal Reserve & Interest Rates</strong><br>
+                            - The U.S. Federal Reserve's decision on interest rates continues to impact stock market volatility.<br>
+                            - Lower interest rates generally lead to bullish markets, while higher rates can slow down investments.</p>
+                            
+                            <p><strong>🔹 📈 Market Volatility & Economic Outlook</strong><br>
+                            - Uncertainty in the global economy is affecting investor confidence.<br>
+                            - S&P 500 and Nasdaq show mixed signals, with tech leading but other sectors lagging.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

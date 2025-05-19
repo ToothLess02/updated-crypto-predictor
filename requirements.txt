@@ -1,0 +1,7 @@
+from flask import Flask, request, jsonify
+import pickle
+import numpy as np
+from datetime import datetime, timedelta
+import pandas as pd
+import yfinance as yf
+from sklearn.preprocessing import MinMaxScaler
